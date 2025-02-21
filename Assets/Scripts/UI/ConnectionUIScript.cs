@@ -1,14 +1,16 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using XRMultiplayer;
 
 public class ConnectionUIScript : MonoBehaviour
 {
     [SerializeField] private TMP_InputField emailField;
     [SerializeField] private TMP_InputField passwordField;
     [SerializeField] private Button loginButton;
-
-    [SerializeField] private TMP_Text debugDisplay;
+    
+    [SerializeField] private GameObject lobbiesUI;
 
     private void Awake()
     {
@@ -20,7 +22,8 @@ public class ConnectionUIScript : MonoBehaviour
         StartCoroutine(BackendHandler.LoginUser(emailField.text, passwordField.text, res =>
         {
             Debug.Log($"Connected as {res.name}!");
-            debugDisplay.text = $"Connected as {res.name}";
+            gameObject.SetActive(false);
+            lobbiesUI.SetActive(true);
         }));
     }
 }
