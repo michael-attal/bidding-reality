@@ -133,7 +133,7 @@ public static class BackendHandler
             Debug.LogError($"Failed fetching users: {request.error}");
     }
 
-    public static IEnumerator PostUser(BackendUser user)
+    public static IEnumerator PostUser(BackendUser user, UnityAction<BackendUser> callback)
     {
         Dictionary<string, string> payload = new Dictionary<string, string>()
         {
@@ -150,6 +150,7 @@ public static class BackendHandler
         if (request.result == UnityWebRequest.Result.Success)
         {
             Debug.Log($"Successfully added user {user.name}!");
+            yield return LoginUser(user.email, user.password, callback);
         }
         else
             Debug.LogError($"Failed uploading user: {request.error}");
