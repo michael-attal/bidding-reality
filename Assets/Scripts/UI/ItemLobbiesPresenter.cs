@@ -1,5 +1,6 @@
+using System;
 using System.Collections.Generic;
-using Unity.Netcode;
+using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
@@ -21,9 +22,20 @@ public class ItemLobbiesPresenter : MonoBehaviour
     {
         foreach (var item in items)
         {
-            var lobbyItem = Instantiate(itemLobbyPrefab, itemLobbyContainer);
-            StartCoroutine(lobbyItem.Initialize(item));
-            lobbyItem.OnButtonClicked.AddListener(() => JoinAuction(item.id));
+            if (item.isSold)
+                return;
+            
+            DateTime endDate = DateTime.Parse(item.endDate);
+            if (endDate < DateTime.Now)
+            {
+                
+            }
+            else
+            {
+                var lobbyItem = Instantiate(itemLobbyPrefab, itemLobbyContainer);
+                StartCoroutine(lobbyItem.Initialize(item));
+                lobbyItem.OnButtonClicked.AddListener(() => JoinAuction(item.id));
+            }
         }
     }
 
@@ -36,7 +48,7 @@ public class ItemLobbiesPresenter : MonoBehaviour
         bool foundLobby = false;
         foreach (var lobby in lobbies.Results)
         {
-            if (foundLobby || lobby.Data["itemId"].Value != itemId)
+            if (foundLobby || (lobby.Data.ContainsKey("itemId") && lobby.Data["itemId"].Value != itemId))
                 continue;
 
             foundLobby = true;
@@ -49,16 +61,28 @@ public class ItemLobbiesPresenter : MonoBehaviour
         
         Debug.Log("Couldn't find a lobby. Creating one now...");
         var createdLobby = await XRINetworkGameManager.Instance.lobbyManager.CreateLobby();
-        createdLobby.Data["itemId"] = new DataObject(DataObject.VisibilityOptions.Public, itemId);
         XRINetworkGameManager.Instance.JoinLobbySpecific(createdLobby);
-        currentLobby = createdLobby;
+
+        UpdateLobbyOptions lobbyOptions = new UpdateLobbyOptions();
+        lobbyOptions.Name = $"{itemId} Bid";
+        lobbyOptions.MaxPlayers = 20;
+        lobbyOptions.IsPrivate = false;
+        lobbyOptions.HostId = AuthenticationService.Instance.PlayerId;
+        lobbyOptions.Data = new Dictionary<string, DataObject>()
+        {
+            { "itemId", new DataObject(DataObject.VisibilityOptions.Public, itemId) }
+        };
+        var updatedLobby = await LobbyService.Instance.UpdateLobbyAsync(createdLobby.Id, lobbyOptions);
+        currentLobby = updatedLobby;
     }
 
     private void OnConnected(bool success)
     {
         if (success)
         {
-            Debug.Log($"Connected successfully. ItemID: {currentLobby.Data["itemId"].Value}");
+            Debug.Log($"Connected successfully.");
+            BackendHandler.cachedLobbyId = currentLobby.Id;
+            BackendHandler.cachedItemId = currentLobby.Data["itemId"].Value;
         }
     }
 }

@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Networking;
@@ -9,6 +11,8 @@ public static class BackendHandler
     private static string apiUrl = "https://biddingreality.michaelattal.com/";
     
     public static BackendUser loggedInUser;
+    public static string cachedLobbyId;
+    public static string cachedItemId;
 
     private static string ToJsonPayload(Dictionary<string, string> payload)
     {
@@ -42,20 +46,29 @@ public static class BackendHandler
             Debug.LogError($"Failed fetching bids: {request.error}");
     }
     
-    public static IEnumerator GetBids(BackendItem item, UnityAction<List<BackendBid>> callback)
+    public static IEnumerator GetBids(string itemId, UnityAction<List<BackendBid>> callback)
     {
-        UnityWebRequest request = UnityWebRequest.Get(apiUrl + $"bids/item/{item.id}");
+        UnityWebRequest request = UnityWebRequest.Get(apiUrl + $"bids/item/{itemId}");
 
         yield return request.SendWebRequest();
 
         if (request.result == UnityWebRequest.Result.Success)
         {
             string rawResponse = request.downloadHandler.text;
-            Debug.Log(rawResponse);
             callback(JsonHelper<BackendBid>.GetListFromJson(rawResponse));
         }
         else
             Debug.LogError($"Failed fetching bids: {request.error}");
+    }
+
+    public static IEnumerator GetHighestBid(string itemId, UnityAction<BackendBid> callback)
+    {
+        yield return GetBids(itemId, bids =>
+        {
+            var highestBid = bids.OrderByDescending(bid => bid.amount)
+                .First();
+            callback(highestBid);
+        });
     }
 
     public static IEnumerator PostBid(BackendUser user, BackendItem item, float amount)
@@ -170,5 +183,29 @@ public static class BackendHandler
         }
         else
             Debug.LogError($"Failed login: {request.error}");
+    }
+
+    public static IEnumerator PostCardToken(string number, string cvc, string month, string year)
+        => PostCardToken(loggedInUser, number, cvc, month, year);
+    public static IEnumerator PostCardToken(BackendUser user, string number, string cvc, string month, string year)
+    {
+        Dictionary<string, string> payload = new Dictionary<string, string>()
+        {
+            {"number", ToJsonString(number)},
+            {"cvc", ToJsonString(cvc)},
+            {"month", ToJsonString(month)},
+            {"year", ToJsonString(year)}
+        };
+
+        UnityWebRequest request = UnityWebRequest.Post(apiUrl + "cardtoken/" + user.id, ToJsonPayload(payload), "application/json");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+        {
+            Debug.Log($"Successfully added card!");
+        }
+        else
+            Debug.LogError($"Failed adding card token: {request.error}");
     }
 }

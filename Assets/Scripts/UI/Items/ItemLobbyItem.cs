@@ -18,10 +18,9 @@ public class ItemLobbyItem : MonoBehaviour
         itemNameText.text = backendItem.name;
         itemStartPriceText.text = $"Starting Price: {backendItem.startPrice.ToString("0.00")}$";
         
-        yield return BackendHandler.GetBids(backendItem, results =>
+        yield return BackendHandler.GetHighestBid(backendItem.id, result =>
         {
-            var highestBidPrice = results.Max(bid => bid.amount);
-            itemCurrentBidText.text = highestBidPrice.ToString("0.00") + "$";
+            itemCurrentBidText.text = result.amount.ToString("0.00") + "$";
         });
     }
 }
