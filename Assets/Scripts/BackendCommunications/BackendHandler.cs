@@ -102,6 +102,7 @@ public static class BackendHandler
         if (request.result == UnityWebRequest.Result.Success)
         {
             string rawResponse = request.downloadHandler.text;
+            Debug.Log(rawResponse);
             callback(JsonHelper<BackendItem>.GetListFromJson(rawResponse));
         }
         else
