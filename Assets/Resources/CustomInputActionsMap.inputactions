@@ -1,0 +1,65 @@
+{
+    "name": "CustomInputActionsMap",
+    "maps": [
+        {
+            "name": "Gameplay",
+            "id": "33e94a8f-bfc6-4d47-a86c-b40910e4004e",
+            "actions": [
+                {
+                    "name": "RaiseBid",
+                    "type": "Button",
+                    "id": "a0229efc-602d-4bfa-976c-429e56867166",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "UpdateIncrement",
+                    "type": "Value",
+                    "id": "bfcab273-735b-4bee-a464-cfaf139d9f37",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "c6768266-5688-44f6-85c0-eaaf453b2b40",
+                    "path": "<XRController>{RightHand}/{TriggerButton}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RaiseBid",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "ba2eda8d-3829-4502-be1c-3130b9df63f0",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "RaiseBid",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "d90e2362-5a7e-470a-a8a1-64485bee83dd",
+                    "path": "<XRController>{RightHand}/{Primary2DAxis}",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UpdateIncrement",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
