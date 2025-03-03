@@ -26,16 +26,9 @@ public class ItemLobbiesPresenter : MonoBehaviour
                 return;
             
             DateTime endDate = DateTime.Parse(item.endDate);
-            if (endDate < DateTime.Now)
-            {
-                
-            }
-            else
-            {
-                var lobbyItem = Instantiate(itemLobbyPrefab, itemLobbyContainer);
-                StartCoroutine(lobbyItem.Initialize(item));
-                lobbyItem.OnButtonClicked.AddListener(() => JoinAuction(item.id));
-            }
+            var lobbyItem = Instantiate(itemLobbyPrefab, itemLobbyContainer);
+            StartCoroutine(lobbyItem.Initialize(item));
+            lobbyItem.OnButtonClicked.AddListener(() => JoinAuction(item.id));
         }
     }
 

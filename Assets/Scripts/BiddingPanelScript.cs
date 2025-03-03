@@ -39,6 +39,8 @@ public class BiddingPanelScript : MonoBehaviour
 
         if (direction.y >= 0.5f)
             amountToBid += 10.0f;
+        if (direction.y <= -0.5f)
+            amountToBid -= 10.0f;
         amountText.text = amountToBid + "$";
     }
 }

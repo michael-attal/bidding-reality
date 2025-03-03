@@ -15,7 +15,10 @@ public class ItemLobbyItem : MonoBehaviour
     
     public IEnumerator Initialize(BackendItem backendItem)
     {
-        itemNameText.text = backendItem.name;
+        bool isSold = backendItem.isSold;
+
+        button.interactable = !isSold;
+        itemNameText.text = backendItem.name + (isSold ? " (Sold)" : "");
         itemStartPriceText.text = $"Starting Price: {backendItem.startPrice.ToString("0.00")}$";
         
         yield return BackendHandler.GetHighestBid(backendItem.id, result =>
