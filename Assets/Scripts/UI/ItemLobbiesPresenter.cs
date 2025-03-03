@@ -10,11 +10,14 @@ public class ItemLobbiesPresenter : MonoBehaviour
 {
     [SerializeField] private ItemLobbyItem itemLobbyPrefab;
     [SerializeField] private Transform itemLobbyContainer;
+    [SerializeField] private GameObject itemCreationUI;
 
     private Lobby currentLobby;
     
     void Start()
     {
+        itemCreationUI.SetActive(BackendHandler.loggedInUser.role == "admin");
+        
         StartCoroutine(BackendHandler.GetItems(Initialize));
     }
 
