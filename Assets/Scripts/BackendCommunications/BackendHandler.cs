@@ -54,7 +54,7 @@ public static class BackendHandler
         if (request.result == UnityWebRequest.Result.Success)
         {
             string rawResponse = request.downloadHandler.text;
-            callback(JsonHelper<BackendBid>.GetListFromJson(rawResponse));
+            callback(rawResponse == "[]" ? new List<BackendBid>() : JsonHelper<BackendBid>.GetListFromJson(rawResponse));
         }
         else
             Debug.LogError($"Failed fetching bids: {request.error}");
@@ -65,7 +65,7 @@ public static class BackendHandler
         yield return GetBids(itemId, bids =>
         {
             var highestBid = bids.OrderByDescending(bid => bid.amount)
-                .First();
+                .FirstOrDefault();
             callback(highestBid);
         });
     }
@@ -212,8 +212,8 @@ public static class BackendHandler
         {
             {"number", ToJsonString(number)},
             {"cvc", ToJsonString(cvc)},
-            {"month", ToJsonString(month)},
-            {"year", ToJsonString(year)}
+            {"exp_month", month},
+            {"exp_year", year}
         };
 
         UnityWebRequest request = UnityWebRequest.Post(apiUrl + "cardtoken/" + user.id, ToJsonPayload(payload), "application/json");
