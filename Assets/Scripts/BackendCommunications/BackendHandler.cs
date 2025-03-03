@@ -23,7 +23,6 @@ public static class BackendHandler
         }
         res = res.TrimEnd(',');
         res += "}";
-        Debug.Log($"Generated payload: {res}");
         return res;
     }
     
@@ -165,9 +164,28 @@ public static class BackendHandler
         {
             Debug.Log($"Successfully added user {user.name}!");
             yield return LoginUser(user.email, user.password, callback);
+            yield return PostStripeCustomer(loggedInUser);
         }
         else
             Debug.LogError($"Failed uploading user: {request.error}");
+    }
+    
+    public static IEnumerator PostStripeCustomer(BackendUser user)
+    {
+        Dictionary<string, string> payload = new Dictionary<string, string>()
+        {
+            {"email", ToJsonString(user.email)},
+            {"name", ToJsonString(user.name)}
+        };
+
+        UnityWebRequest request = UnityWebRequest.Post(apiUrl + $"users/{user.id}/stripe", ToJsonPayload(payload), "application/json");
+
+        yield return request.SendWebRequest();
+
+        if (request.result == UnityWebRequest.Result.Success)
+            Debug.Log($"Successfully added stripe customer {user.name}!");
+        else
+            Debug.LogError($"Failed uploading customer: {request.error}");
     }
     
     public static IEnumerator LoginUser(string email, string password, UnityAction<BackendUser> callback)
